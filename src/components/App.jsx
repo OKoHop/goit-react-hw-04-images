@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import { MagnifyingGlass } from 'react-loader-spinner';
 import { fetchPictures } from 'Fetch_API';
@@ -6,70 +6,58 @@ import { SearchBar } from './Searchbar/SearchBar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { BtnLoadMore } from './Button/Button';
 
-export class App extends Component {
-  state = {
-    search: '',
-    picture: [],
-    page: 1,
-    isLoading: false,
-  };
+export const App = () => {
+  const [search, setSearch] = useState('');
+  const [picture, setPicture] = useState([]);
+  const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
 
-  searchPic = newPic => {
+  const searchPic = newPic => {
     const query = `${nanoid()}/${newPic}`;
-    this.setState({
-      search: query.slice(query.indexOf('/') + 1, query.length),
-      page: 1,
-    });
+    setSearch(query.slice(query.indexOf('/') + 1, query.length));
+    setPage(1);
   };
 
-  async componentDidUpdate(prevProps, prevState) {
-    if (
-      prevState.search !== this.state.search ||
-      prevState.page !== this.state.page
-    ) {
-      this.setState({ isLoading: true });
-      const getPicture = await fetchPictures(
-        this.state.search,
-        this.state.page
-      );
-      this.setState({
-        picture: getPicture,
-      });
-      this.setState({ isLoading: false });
+  const nextPage = () => {
+    setPage(prevstate => prevstate + 1);
+  };
+
+  useEffect(() => {
+    async function startFetch() {
+      if (search === '') return;
+      try {
+        setIsLoading(true);
+        const getPicture = await fetchPictures(search, page);
+        setPicture(getPicture);
+      } catch (error) {
+        console.warn(error);
+      } finally {
+        setIsLoading(false);
+      }
     }
-  }
 
-  nextPage = () => {
-    this.setState(prevState => {
-      return {
-        page: prevState.page + 1,
-      };
-    });
-  };
+    startFetch();
+  }, [search, page]);
 
-  render() {
-    return (
-      <>
-        <SearchBar submitForm={this.searchPic} />
-        {this.state.isLoading ? (
-          <MagnifyingGlass
-            visible={true}
-            height="80"
-            width="80"
-            ariaLabel="MagnifyingGlass-loading"
-            wrapperStyle={{}}
-            wrapperClass="MagnifyingGlass-wrapper"
-            glassColor="#c0efff"
-            color="#e15b64"
-          />
-        ) : (
-          <ImageGallery pictures={this.state.picture} />
-        )}
+  return (
+    <>
+      <SearchBar submitForm={searchPic} />
+      {isLoading ? (
+        <MagnifyingGlass
+          visible={true}
+          height="80"
+          width="80"
+          ariaLabel="MagnifyingGlass-loading"
+          wrapperStyle={{}}
+          wrapperClass="MagnifyingGlass-wrapper"
+          glassColor="#c0efff"
+          color="#e15b64"
+        />
+      ) : (
+        <ImageGallery pictures={picture} />
+      )}
 
-        {this.state.picture.length !== 0 && (
-          <BtnLoadMore loadMore={this.nextPage} />
-        )}
-      </>
-    );
-  }
-}
+      {picture.length !== 0 && <BtnLoadMore loadMore={nextPage} />}
+    </>
+  );
+};

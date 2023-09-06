@@ -1,5 +1,5 @@
 import ReactModal from 'react-modal';
-import { Component } from 'react';
+import { useState } from 'react';
 import { Modal } from 'components/Modal/Modal';
 
 const customStyles = {
@@ -15,35 +15,26 @@ const customStyles = {
 
 ReactModal.setAppElement('#root');
 
-export class ImgItem extends Component {
-  state = {
-    isOpen: false,
+export const ImgItem = ({ picture }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const openModal = () => {
+    setIsOpen(true);
   };
 
-  openModal = () => {
-    this.setState({ isOpen: true });
+  const closeModal = () => {
+    setIsOpen(false);
   };
 
-  closeModal = () => {
-    this.setState({ isOpen: false });
-  };
-
-  render() {
-    const { picture } = this.props;
-    return (
-      <>
-        <img
-          src={picture.webformatURL}
-          alt={picture.tags}
-          onClick={this.openModal}
-        />
-        <Modal
-          picture={picture}
-          isOpen={this.state.isOpen}
-          closeModal={this.closeModal}
-          style={customStyles}
-        />
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <img src={picture.webformatURL} alt={picture.tags} onClick={openModal} />
+      <Modal
+        picture={picture}
+        isOpen={isOpen}
+        closeModal={closeModal}
+        style={customStyles}
+      />
+    </>
+  );
+};
