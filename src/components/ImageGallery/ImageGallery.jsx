@@ -1,6 +1,6 @@
 import { ImgItem } from 'components/ImageGalleryItem/ImageGalleryItem';
 
-export const ImageGallery = ({ picture }) => {
+export const ImageGallery = ({ pictures }) => {
   return (
     <ul>
       {pictures.map(picture => {
