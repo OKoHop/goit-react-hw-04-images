@@ -5,7 +5,7 @@ export const ImageGallery = ({ pictures }) => {
     <ul>
       {pictures.map(picture => {
         return (
-          <li key={picture.id} onClick={this.openModal}>
+          <li key={picture.id}>
             <ImgItem picture={picture} />
           </li>
         );
